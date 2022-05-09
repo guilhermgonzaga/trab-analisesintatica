@@ -1,0 +1,7 @@
+*.o
+
+avalia-lex
+avalia-lex2
+parser
+parser2
+.vscode
