@@ -15,16 +15,22 @@ Gramática da linguagem aceita pelo parser:
             | id() { B }
  B -> C B
       | epsilon
- C -> id = E ;
-      | while (E) C
+ C -> id I ;
+      | goto id ;
+      | while (D) C
       | { B }
+ I -> = D ;
+      | : C
+ D -> E D'
+ D'-> ? D : D
+      | epsilon
  E -> TE'
  E'-> +TE'
       | epsilon
  T -> FT'
  T'-> *FT'
       | epsilon
- F -> (E)
+ F -> (D)
       | id
       | num
 
@@ -125,7 +131,7 @@ void B(){
 /*
  C -> id I ;
     | goto label ;
-    | while (E) C
+    | while (D) C
     | { B }
 */
 void C(){
@@ -141,7 +147,7 @@ void C(){
   else if(lookahead==WHILE){
     match(WHILE);
     match(ABRE_PARENT);
-    E();
+    D();
     match(FECHA_PARENT);
     C();
   }
@@ -151,10 +157,27 @@ void C(){
     match(FECHA_CHAVES);
   }
 }
+// D -> E D_
+void D(){
+  E();
+  D_();
+}
 // E-> T E_
 void E(){
   T();
   E_();
+}
+/*
+  D_ -> ? D : D
+      | epsilon
+*/
+void D_(){
+  if (lookahead==OP_CASE) {
+    match(OP_CASE);
+    D();
+    match(DOT_DOT);
+    D();
+  }
 }
 // T -> FT'
 void T(){
@@ -180,14 +203,14 @@ void T_(){
   }
 }
 /*
- F -> (E)
+ F -> (D)
       | id
       | num
 */
 void F(){
   if(lookahead==ABRE_PARENT){
     match(ABRE_PARENT);
-    E();
+    D();
     match(FECHA_PARENT);
   }
   else{
@@ -199,7 +222,7 @@ void F(){
   }
 }
 /*
- I -> = E ;
+ I -> = D ;
     | : C
 */
 void I() {
@@ -207,9 +230,9 @@ void I() {
     match(DOT_DOT);
     C();
   }
-  else {  /* id = E ; */
+  else {  /* id = D ; */
     match(OP_ATRIB);
-    E();
+    D();
     match(PONTO_VIRG);
   }
 }
