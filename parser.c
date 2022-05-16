@@ -117,21 +117,25 @@ void Function_(){
       | epsilon
 */
 void B(){
-  if(lookahead==ID || lookahead==WHILE || lookahead==ABRE_CHAVES){
+  if(lookahead==ID || lookahead==GOTO || lookahead==WHILE || lookahead==ABRE_CHAVES){
     C();
     B();
   }
 }
 /*
- C -> id = E ;
-      | while (E) C
-      | { B }
+ C -> id I ;
+    | goto label ;
+    | while (E) C
+    | { B }
 */
 void C(){
-   if(lookahead==ID){ //id = E ;
+  if(lookahead==ID){
     match(ID);
-    match(OP_ATRIB);
-    E();
+    I();
+  }
+  else if (lookahead==GOTO){
+    match(GOTO);
+    match(ID);
     match(PONTO_VIRG);
   }
   else if(lookahead==WHILE){
@@ -192,6 +196,21 @@ void F(){
     }
     else
       match(NUM);
+  }
+}
+/*
+ I -> = E ;
+    | : C
+*/
+void I() {
+  if (lookahead==DOT_DOT) { /* id : C */
+    match(DOT_DOT);
+    C();
+  }
+  else {  /* id = E ; */
+    match(OP_ATRIB);
+    E();
+    match(PONTO_VIRG);
   }
 }
 
